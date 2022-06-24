@@ -9,3 +9,4 @@ edition = "2021"
 paho-mqtt = "0.11.1"
 clap = { version = "3.2.6", features = ["derive"] }
 futures = "0.3"
+redis = "0.21.5"
