@@ -45,9 +45,6 @@ struct Args {
     },
  }
 
-fn publish(msg:mqtt::Message, client:&mqtt::AsyncClient) -> DeliveryToken{
-    client.publish(msg.clone())
-}
 
 fn main() {
     let args = Args::parse();
@@ -69,9 +66,22 @@ fn main() {
     match &args.command {
         Commands::Publish { topic, payload, qos } => {
             let msg = mqtt::Message::new(topic, payload.as_str(), qos.clone());
-            let token = publish(msg, &client);
-            if let Err(e) = token.wait() {
-                println!("Error sending message: {:?}", e);
+            if let Err(err) = block_on(async {
+                // Connect with default options and wait for it to complete or fail
+                println!("Connecting to the MQTT server");
+                client.connect(None).await?;
+        
+                // Create a message and publish it
+                println!("Publishing a message on the topic 'test'");
+                client.publish(msg).await?;
+        
+                // Disconnect from the broker
+                println!("Disconnecting");
+                client.disconnect(None).await?;
+        
+                Ok::<(), mqtt::Error>(())
+            }) {
+                eprintln!("{}", err);
             }
         },
         Commands::Subscribe { topic, qos } => {
