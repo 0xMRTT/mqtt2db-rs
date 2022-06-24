@@ -1,1 +1,9 @@
 -- Your SQL goes here
+
+CREATE TABLE mqtt (
+  id SERIAL PRIMARY KEY,
+  topic VARCHAR NOT NULL,
+  payload TEXT NOT NULL,
+  time TIME NOT NULL,
+  qos INTEGER NOT NULL DEFAULT 0,
+)
