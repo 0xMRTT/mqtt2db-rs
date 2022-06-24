@@ -4,7 +4,7 @@ use futures::executor::block_on;
 use futures::prelude::*;
 use futures::FutureExt;
 use futures::StreamExt;
-use paho_mqtt as mqtt;
+use paho_mqtt;
 use paho_mqtt::DeliveryToken;
 use std::process;
 use std::time::Duration;
@@ -40,16 +40,24 @@ enum Commands {
     },
 }
 
+extern crate mqtt2db_rs;
+extern crate diesel;
+
+use self::mqtt2db_rs::*;
+use self::models::*;
+use self::diesel::prelude::*;
+
 fn main() {
+    use mqtt2db_rs::schema::mqtt::dsl;
     let args = Args::parse();
 
     let url = args.url;
-    let create_opts = mqtt::CreateOptionsBuilder::new()
+    let create_opts = paho_mqtt::CreateOptionsBuilder::new()
         .server_uri(url.clone())
         .client_id("rust_async_subscribe")
         .finalize();
 
-    let mut client = mqtt::AsyncClient::new(create_opts).unwrap_or_else(|e| {
+    let mut client = paho_mqtt::AsyncClient::new(create_opts).unwrap_or_else(|e| {
         println!("Error creating the client: {:?}", e);
         process::exit(1);
     });
@@ -60,7 +68,7 @@ fn main() {
             payload,
             qos,
         } => {
-            let msg = mqtt::Message::new(topic, payload.as_str(), qos.clone());
+            let msg = paho_mqtt::Message::new(topic, payload.as_str(), qos.clone());
             if let Err(err) = block_on(async {
                 // Connect with default options and wait for it to complete or fail
                 println!("Connecting to the MQTT server");
@@ -74,7 +82,7 @@ fn main() {
                 println!("Disconnecting");
                 client.disconnect(None).await?;
 
-                Ok::<(), mqtt::Error>(())
+                Ok::<(), paho_mqtt::Error>(())
             }) {
                 eprintln!("{}", err);
             }
@@ -86,11 +94,11 @@ fn main() {
 
                 // Define the set of options for the connection
                 let lwt =
-                    mqtt::Message::new("test", "Async subscriber lost connection", mqtt::QOS_1);
+                    paho_mqtt::Message::new("test", "Async subscriber lost connection", paho_mqtt::QOS_1);
 
-                let conn_opts = mqtt::ConnectOptionsBuilder::new()
+                let conn_opts = paho_mqtt::ConnectOptionsBuilder::new()
                     .keep_alive_interval(Duration::from_secs(30))
-                    .mqtt_version(mqtt::MQTT_VERSION_3_1_1)
+                    .mqtt_version(paho_mqtt::MQTT_VERSION_3_1_1)
                     .clean_session(false)
                     .will_message(lwt)
                     .finalize();
@@ -125,7 +133,7 @@ fn main() {
                 }
 
                 // Explicit return type for the async block
-                Ok::<(), mqtt::Error>(())
+                Ok::<(), paho_mqtt::Error>(())
             }) {
                 eprintln!("{}", err);
             }
