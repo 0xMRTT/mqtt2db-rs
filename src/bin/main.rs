@@ -1,10 +1,3 @@
-#[macro_use]
-extern crate diesel;
-extern crate dotenv;
-
-use diesel::prelude::*;
-use diesel::pg::PgConnection;
-use dotenv::dotenv;
 use std::env;
 use clap::{Parser, Subcommand};
 use futures::executor::block_on;
@@ -15,10 +8,6 @@ use paho_mqtt as mqtt;
 use paho_mqtt::DeliveryToken;
 use std::process;
 use std::time::Duration;
-
-pub mod schema;
-pub mod models;
-
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
 #[clap(propagate_version = true)]
