@@ -138,8 +138,8 @@ fn main() {
     }
 
     // Disconnect from the broker
-    let tok = client.disconnect(mqtt::DisconnectOptions::new());
-    tok.wait().unwrap();
+    //let tok = client.disconnect(mqtt::DisconnectOptions::new());
+    //tok.wait().unwrap();
 
     /*let token = publish("topic".to_string(), "payload".to_string(), 0, client);
     println!("Publishing to topic {}", "topic");
