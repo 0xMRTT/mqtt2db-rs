@@ -72,7 +72,7 @@ fn main() {
                 client.connect(None).await?;
         
                 // Create a message and publish it
-                println!("Publishing a message on the topic 'test'");
+                println!("Publishing a message on the topic '{}'", topic);
                 client.publish(msg).await?;
         
                 // Disconnect from the broker
