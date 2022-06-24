@@ -6,8 +6,6 @@ use futures::FutureExt;
 use futures::StreamExt;
 use paho_mqtt as mqtt;
 use paho_mqtt::DeliveryToken;
-use redis::AsyncCommands;
-use redis::Commands as RedisCommands;
 use std::process;
 use std::time::Duration;
 
@@ -21,9 +19,6 @@ struct Args {
 
     #[clap(subcommand)]
     command: Commands,
-
-    #[clap(short, long, value_parser)]
-    redis_url: Option<String>,
 }
 
 #[derive(Subcommand)]
@@ -50,9 +45,6 @@ fn main() {
     let args = Args::parse();
 
     let url = args.url;
-    let redis_url = args
-        .redis_url
-        .unwrap_or_else(|| "redis://localhost:6379".to_string());
     let create_opts = mqtt::CreateOptionsBuilder::new()
         .server_uri(url.clone())
         .client_id("rust_async_subscribe")
